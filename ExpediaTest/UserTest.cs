@@ -90,5 +90,41 @@ namespace ExpediaTest
 		{
 			target = null; // this is entirely unnecessary.. but I'm just showing a usage of the TearDown method here
 		}
+
+        [TestMethod()]
+        public void TestThatUserDoesRemoveCarFromServiceLocatorWhenBooked()
+        {
+            ServiceLocator serviceLocator = new ServiceLocator();
+            var carToBook = new Car(5);
+            var remainingCar = new Car(7);
+            serviceLocator.AddCar(carToBook);
+            serviceLocator.AddCar(remainingCar);
+            typeof(ServiceLocator).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic)
+                .SetValue(serviceLocator, serviceLocator);
+            var target = new User("Bob");
+            target.book(carToBook);
+            Assert.AreEqual(1, ServiceLocator.Instance.AvailableCars.Count);
+            Assert.AreSame(remainingCar, ServiceLocator.Instance.AvailableCars[0]);
+        }
+
+        [TestMethod()]
+        public void TestThatUserDoesRemoveFlightFromServiceLocatorWhenBooked()
+        {
+            ServiceLocator serviceLocator = new ServiceLocator();
+            DateTime start1 = new DateTime(2009, 11, 1);
+            DateTime end1 = new DateTime(2009, 11, 2);
+            DateTime start2 = new DateTime(2009, 12, 1);
+            DateTime end2 = new DateTime(2009, 12, 2);
+            var flightToBook = new Flight(start1,end1,100);
+            var remainingFlight = new Flight(start2,end2,200);
+            serviceLocator.AddFlight(flightToBook);
+            serviceLocator.AddFlight(remainingFlight);
+            typeof(ServiceLocator).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic)
+                .SetValue(serviceLocator, serviceLocator);
+            var target = new User("Bob");
+            target.book(flightToBook);
+            Assert.AreEqual(1, ServiceLocator.Instance.AvailableFlights.Count);
+            Assert.AreSame(remainingFlight, ServiceLocator.Instance.AvailableFlights[0]);
+        }
 	}
 }
